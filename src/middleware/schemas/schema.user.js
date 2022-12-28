@@ -64,7 +64,7 @@ export  function validateUserLogin() {
   return async (res, req, next) => {
     try {
       const { error, value } = schemaUserLogin.validate({
-        email: res.body.email,
+        email: res.body.username,
         password: res.body.password,       
       });
 

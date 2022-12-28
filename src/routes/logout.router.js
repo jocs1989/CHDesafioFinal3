@@ -1,14 +1,52 @@
 import { Router } from "express";
-import users from "../presistencia/dao/user/index.js";
+import passport from "passport";
+import LocalStrategy from "passport-local";
 import express from "express";
+import users from "../presistencia/dao/user/index.js";
 import { fileURLToPath } from "url";
 import path from "path";
 import { validateUserLogin } from "../middleware/schemas/schema.user.js";
 import bcrypt from "bcrypt";
-
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const router = Router();
+
+passport.use(
+  new LocalStrategy(async function verify(username, password, cb) {
+    
+    const usuario = { email: username, password };
+    const result = [await users.getUsuario(usuario)].map((item) => {
+      return { hash: item.password, role: item.role, nombre: item.nombre };
+    });
+    
+    if (result) {
+      const acceso = await bcrypt.compare(
+        usuario.password,
+        String(result[0].hash)
+      );
+      if (acceso) {
+        
+       
+        return cb (null,result)
+      } else {
+        return cb(null, false);
+      }
+    }
+  })
+);
+
+passport.serializeUser(function(user, cb) {
+  process.nextTick(function() {
+    cb(null, {  username: user.username });
+  });
+});
+
+passport.deserializeUser(function(user, cb) {
+  process.nextTick(function() {
+    return cb(null, user);
+  });
+});
+
 router.get("/", async (req, res, next) => {
   try {
     res.status(200).render("partials/login", {});
@@ -17,55 +55,13 @@ router.get("/", async (req, res, next) => {
     res.status(400).json({ error: err.toString() });
   }
 });
-router.post("/", validateUserLogin(), async (req, res, next) => {
-  try {
-    const usuario = {
-      email: req.body.email,
-      password: req.body.password,
-    };
-    const existe = [await users.getUsuario(usuario)];
-
-    if (existe) {
-      //map
-      const resultado = existe.map((item) => {
-        return {hash:item.password,role:item.role,nombre:item.nombre}
-      });
-     
-      bcrypt.compare(usuario.password, String(resultado[0].hash), function (err, result) {
-        
-        if (err) {
-          res
-            .status(400)
-            .render("partials/error", { error: "Revisa tus datos" });
-        }
-        //si existe
-        if (result) { // valid password
-          
-         if(resultado[0].role=="admin"){
-          req.session.administrador=true;
-         }else{
-          req.session.administrador=false
-         }
-          
-          req.session.email=usuario.email
-          req.session.name=resultado[0].nombre
-          res.status(200).render("partials/usuario", { usuario:resultado[0] });
-        } else {
-          // not valid to password 
-          res
-            .status(400)
-            .render("partials/error", { error: "Revisa tus datos" });
-        }
-
-        
-      });
-    } else {// no existe
-      res.status(400).render("partials/error", { error: "Revisa tus datos" });
-    }
-  } catch (err) {
-    console.error(err);
-    res.status(400).render("partials/error", { error: err });
-  }
-});
+router.post(
+  "/",
+  validateUserLogin(),
+  passport.authenticate("local", {
+    successRedirect: "/api/usuario",
+    failureRedirect: "/api/login",
+  })
+);
 
 export default router;
