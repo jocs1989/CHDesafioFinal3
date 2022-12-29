@@ -52,6 +52,7 @@ router.post("/", validateUser(), async (req, res, next) => {
 
       await users.saveUser(usuario);
       delete usuario.password;
+      console.log("Enviando mensaje")
 
       client.messages
       .create({
@@ -59,7 +60,9 @@ router.post("/", validateUser(), async (req, res, next) => {
          body: `Solicito acceso el usuario :${usuario}`,
          to: 'whatsapp:+525541362155'
        })
-      .then(message => console.log(message.sid));
+      .then(message => {
+        console.log("Mensaje enviado")
+        console.log(message.sid);});
       res.status(200).render("partials/login", { acceso: "usuario creado" });
     });
       
