@@ -32,7 +32,7 @@ function twilo(usuario){
   .create({
      from: `whatsapp:${numberPhone}`,
      body: `Solicito acceso el usuario :${usuario}`,
-     to: 'whatsapp:+525541362155'
+     to: 'whatsapp:+52555555555'
    })
   .then(message => {
     console.log("Mensaje enviado")
@@ -52,8 +52,8 @@ async function gmail(asunto,msg){
   }
   const trasporter =createTransport(options)
   const mailOptions ={
-    from:'analistasin40@gmail.com',
-    to:'analistasin40@gmail.com',
+    from:config.GMAIL.MAIL,
+    to:config.GMAIL.MAIL,
     subject:asunto,
     html:msg
   }
