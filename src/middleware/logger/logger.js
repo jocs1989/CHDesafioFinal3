@@ -12,19 +12,38 @@ const configInfo = {
         
         new winston.transports.Console({
             level:'error',
-            format:winston.format.simple()}),
-        new winston.transports.File({
-            name: __dirname+'/info-file',
-            filename: 'filelog-info.log',
-            level: 'info'})
+            format:winston.format.combine(
+                winston.format.colorize({ all: true }),
+                winston.format.simple())})
         ]
     , exceptionHandlers:[
         new winston.transports.File({
-            filename:__dirname+'/error.log',
+            filename:__dirname+'../../logs/error.log',
             level:'error'})],
     
 }
 
-const logger = winston.createLogger(configInfo)
 
-export default logger;
+
+
+export const loggerErr = winston.createLogger(configInfo)
+
+
+export const loggerInfo = winston.createLogger({
+    level: 'info',
+    format: winston.format.combine(
+        winston.format.timestamp(),
+        winston.format.simple()
+      ),
+    transports: [
+      new winston.transports.File({
+        filename: __dirname+ '../../logs/info.log',
+        
+        level: 'info',
+        maxsize: 500
+      })
+    ]
+  });
+  
+
+

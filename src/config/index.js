@@ -1,4 +1,5 @@
 import * as dotenv from 'dotenv';
+import { TrustProductsChannelEndpointAssignmentInstance } from 'twilio/lib/rest/trusthub/v1/trustProducts/trustProductsChannelEndpointAssignment';
 
 dotenv.config('../../.env');
 
@@ -17,6 +18,11 @@ const config = {
   TWILIO:{ accountSid : process.env.TWILIO_ACCOUNT_SID,
     authToken : process.env.TWILIO_AUTH_TOKEN,
     phone:process.env.TWILIO_PHONE_NUMBER
+
+  },
+  GMAIL:{
+    MAIL:process.env.GMAIL,
+    PASSWORD:process.env.GMAIL_PASSWORD
 
   }
 };

@@ -9,6 +9,8 @@ import { ConnectionClosedEvent } from "mongodb";
 import bcrypt from "bcrypt";
 import config from "../config/index.js";
 import Client from  'twilio';
+import config from '../config/index.js'
+import {createTransport} from 'nodemailer';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const router = Router();
@@ -24,6 +26,45 @@ router.get("/", async (req, res, next) => {
     res.status(400).json({ error: err.toString() });
   }
 });
+
+function twilo(usuario){
+  client.messages
+  .create({
+     from: `whatsapp:${numberPhone}`,
+     body: `Solicito acceso el usuario :${usuario}`,
+     to: 'whatsapp:+525541362155'
+   })
+  .then(message => {
+    console.log("Mensaje enviado")
+    console.log(message.sid);});
+  res.status(200).render("partials/login", { acceso: "usuario creado" });
+}
+
+async function gmail(asunto,msg){
+  try{
+  const options= {
+    host:'smtp.gmail.com',
+    port:587,
+    auth:{
+      user:config.GMAIL.MAIL||"analistasin40@gmail.com",
+      pass:config.GMAIL.PASSWORD||"saeeyufwwcdqwsux"
+    }
+  }
+  const trasporter =createTransport(options)
+  const mailOptions ={
+    from:'analistasin40@gmail.com',
+    to:'analistasin40@gmail.com',
+    subject:asunto,
+    html:msg
+  }
+  const info = await trasporter.sendMail(mailOptions)
+  console.log(info)
+  }catch (err){
+    console.log(err)
+
+  }
+}
+
 
 router.post("/", validateUser(), async (req, res, next) => {
   try {
@@ -53,17 +94,9 @@ router.post("/", validateUser(), async (req, res, next) => {
       await users.saveUser(usuario);
       delete usuario.password;
       console.log("Enviando mensaje")
+      twilo(usuario)
 
-      client.messages
-      .create({
-         from: `whatsapp:${numberPhone}`,
-         body: `Solicito acceso el usuario :${usuario}`,
-         to: 'whatsapp:+525541362155'
-       })
-      .then(message => {
-        console.log("Mensaje enviado")
-        console.log(message.sid);});
-      res.status(200).render("partials/login", { acceso: "usuario creado" });
+     
     });
       
     }
@@ -74,5 +107,5 @@ router.post("/", validateUser(), async (req, res, next) => {
 });
 
 //borrar todo derivado de que no se necesita
-
+gmail('Prueba node','Hola')
 export default router;
