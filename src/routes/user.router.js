@@ -7,10 +7,15 @@ import { validateUser } from "../middleware/schemas/schema.user.js";
 import { validateUserResponse } from "../middleware/schemas/schema.user.js";
 import { ConnectionClosedEvent } from "mongodb";
 import bcrypt from "bcrypt";
-
+import config from "../config/index.js";
+import Client from  'twilio';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const router = Router();
+const accountSid = config.TWILIO.TWILIO_ACCOUNT_SID;
+const authToken = config.TWILIO.TWILIO_AUTH_TOKEN;
+const numberPhone =config.TWILIO.TWILIO_PHONE_NUMBER;
+const client=Client(accountSid,authToken) 
 router.get("/", async (req, res, next) => {
   try {
     res.status(200).render("partials/registrar", { acceso: "usuario creado" });
@@ -46,6 +51,15 @@ router.post("/", validateUser(), async (req, res, next) => {
       if (err) return res.status(500).send({ message: err });
 
       await users.saveUser(usuario);
+      delete usuario.password;
+
+      client.messages
+      .create({
+         from: `whatsapp:${numberPhone}`,
+         body: `Solicito acceso el usuario :${usuario}`,
+         to: 'whatsapp:+525541362155'
+       })
+      .then(message => console.log(message.sid));
       res.status(200).render("partials/login", { acceso: "usuario creado" });
     });
       

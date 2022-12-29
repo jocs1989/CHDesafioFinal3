@@ -12,7 +12,22 @@ const router = Router();
 configPassport(passport)
 router.get("/", async (req, res, next) => {
   try {
-    res.status(200).render("partials/login", {});
+    res.status(200).render("partials/login", {datos:{resultado:true}});
+  } catch (err) {
+    console.error(err);
+    res.status(400).json({ error: err.toString() });
+  }
+});
+router.get("/logout", async (req, res, next) => {
+  try {
+    req.session.destroy( err =>{
+      if(err){
+        res.status(400).json({ error: err.toString() });
+      }
+      
+      res.status(200).render("partials/login", {});
+    })
+    
   } catch (err) {
     console.error(err);
     res.status(400).json({ error: err.toString() });
@@ -25,7 +40,7 @@ router.post(
     
     failureRedirect: "/api/login",
   }),async (req, res, next) => {
-
+    req.session.active=true
     if(result[0].role=="admin"){
       req.session.administrador=true;
      }else{
