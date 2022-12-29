@@ -2,8 +2,9 @@ import apiRouter from './routes/index.js';
 import express from 'express';
 import { fileURLToPath } from "url";
 import path from "path";
-import managerViews from "./views/config.js"
-import managerSession from "./config/session.js"
+import managerViews from "./views/config.js";
+import managerSession from "./config/session.js";
+import fileUpload from 'express-fileupload';
 
 const __filename = fileURLToPath(import.meta.url);
 
@@ -13,9 +14,10 @@ const app = express();
 app.use('/static', express.static(__dirname + '/static')); //agrega metodos estaticos
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-
+app.use(fileUpload())
 //session
 managerSession(app)
+
 
 //views
 managerViews(app)

@@ -22,18 +22,33 @@ router.get("/", async (req, res, next) => {
 
 router.post("/", validateUser(), async (req, res, next) => {
   try {
+    
     const usuario = {
       nombre: req.body.nombre,
       password: await bcrypt.hash(req.body.password, 10),
       email: req.body.email,
+      direccion:req.body.direccion,
+      edad:req.body.edad,
+      phone:req.body.phone,
       role: req.body.role,
     };
+    
     const existe = await users.getUsuario(usuario);
+    console.log('Entro')
     if (existe) {
       res.status(400).render({ acceso: "El usuario ya existe" });
     } else {
+      
+      let pictureFile = req.files.file;
+      usuario.urlImg =`${__dirname}/../file/${pictureFile.name}`
+
+    pictureFile.mv(`${__dirname}/../file/${pictureFile.name}`, async (err) => {
+      if (err) return res.status(500).send({ message: err });
+
       await users.saveUser(usuario);
       res.status(200).render("partials/login", { acceso: "usuario creado" });
+    });
+      
     }
   } catch (err) {
     console.error(err);
