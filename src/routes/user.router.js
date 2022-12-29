@@ -46,8 +46,8 @@ async function gmail(asunto,msg){
     host:'smtp.gmail.com',
     port:587,
     auth:{
-      user:config.GMAIL.MAIL||"analistasin40@gmail.com",
-      pass:config.GMAIL.PASSWORD||"saeeyufwwcdqwsux"
+      user:config.GMAIL.MAIL,
+      pass:config.GMAIL.PASSWORD
     }
   }
   const trasporter =createTransport(options)
