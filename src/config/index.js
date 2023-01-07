@@ -1,5 +1,4 @@
 import * as dotenv from 'dotenv';
-import { TrustProductsChannelEndpointAssignmentInstance } from 'twilio/lib/rest/trusthub/v1/trustProducts/trustProductsChannelEndpointAssignment';
 
 dotenv.config('../../.env');
 
